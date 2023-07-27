@@ -54,23 +54,26 @@ NSString *const UserDefaultPermissionRequestedKey = @"org.baseflow.permission_ha
     
     _permissionStatusHandler = completionHandler;
     _requestedPermission = permission;
-    
+
+    // requestAlwaysAuthorization がコンパイルされると、ITMS-90683の警告が出るため、一旦コメントアウト
     if (permission == PermissionGroupLocation) {
         if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"] != nil) {
-            [_locationManager requestAlwaysAuthorization];
+            [[NSException exceptionWithName:NSInternalInconsistencyException reason:@"PermissionGroupLocationAlways is not allowed.Please remove NSLocationAlwaysUsageDescription in info.plist file." userInfo:nil] raise];
+//             [_locationManager requestAlwaysAuthorization];
         } else if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"] != nil) {
             [_locationManager requestWhenInUseAuthorization];
         } else {
             [[NSException exceptionWithName:NSInternalInconsistencyException reason:@"To use location in iOS8 you need to define either NSLocationWhenInUseUsageDescription or NSLocationAlwaysUsageDescription in the app bundle's Info.plist file" userInfo:nil] raise];
         }
     } else if (permission == PermissionGroupLocationAlways) {
-        if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"] != nil) {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveActivityNotification:) name:UIApplicationDidBecomeActiveNotification object:nil];
-            [_locationManager requestAlwaysAuthorization];
-            [[NSUserDefaults standardUserDefaults] setBool:TRUE forKey:UserDefaultPermissionRequestedKey];
-        } else {
-            [[NSException exceptionWithName:NSInternalInconsistencyException reason:@"To use location in iOS8 you need to define NSLocationAlwaysUsageDescription in the app bundle's Info.plist file" userInfo:nil] raise];
-        }
+           [[NSException exceptionWithName:NSInternalInconsistencyException reason:@"PermissionGroupLocationAlways is not allowed." userInfo:nil] raise];
+//         if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"] != nil) {
+//             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveActivityNotification:) name:UIApplicationDidBecomeActiveNotification object:nil];
+//             [_locationManager requestAlwaysAuthorization];
+//             [[NSUserDefaults standardUserDefaults] setBool:TRUE forKey:UserDefaultPermissionRequestedKey];
+//         } else {
+//             [[NSException exceptionWithName:NSInternalInconsistencyException reason:@"To use location in iOS8 you need to define NSLocationAlwaysUsageDescription in the app bundle's Info.plist file" userInfo:nil] raise];
+//         }
     } else if (permission == PermissionGroupLocationWhenInUse) {
         if ([[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationWhenInUseUsageDescription"] != nil) {
             [_locationManager requestWhenInUseAuthorization];
